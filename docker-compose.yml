@@ -12,10 +12,9 @@ services:
     networks:
       - plexnet
     environment:
-      - OPENVPN_PROVIDER=NORDVPN
-      - OPENVPN_CONFIG=${VPN_CONFIG}
-      - OPENVPN_USERNAME=${VPN_USERNAME}
-      - OPENVPN_PASSWORD=${VPN_PASSWORD}
+      - OPENVPN_PROVIDER=
+      - OPENVPN_USERNAME=
+      - OPENVPN_PASSWORD=
       - WEBPROXY_ENABLED=yes
       - LOCAL_NETWORK=192.168.0.0/16
     volumes:
@@ -30,12 +29,12 @@ services:
       - plexnet
     environment:
       - PGID=1000
-      - PUID=1000
+      - PUID=1002
       - TZ=Europe/London
     volumes:
       - /docker/radarr/config:/config
       - /docker/transmission/completed:/downloads
-      - /media/movies:/movies
+      - /share/medias/movies:/movies
   sonarr:
     image: linuxserver/sonarr
     container_name: sonarr
@@ -46,11 +45,11 @@ services:
       - plexnet
     environment:
       - PGID=1000
-      - PUID=1000
+      - PUID=1002
       - TZ=Europe/London
     volumes:
-      - /media/animes:/animes
-      - /media/series:/series
+      - /share/medias/animes:/animes
+      - /share/medias/series:/series
       - /docker/sonarr/config:/config
       - /docker/transmission/completed:/downloads
   jackett:
@@ -61,13 +60,26 @@ services:
       - plexnet
     environment:
       - PGID=1000
-      - PUID=1000
+      - PUID=1002
       - TZ=Europe/London
     volumes:
       - /docker/jackett/config:/config
       - /docker/jackett/downloads:/downloads
     ports:
       - "9117:9117"
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    networks:
+      - plexnet
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Europe/London
+    ports:
+      - "8191:8191"
+    restart: unless-stopped 
   plex:
     image: linuxserver/plex
     container_name: plex
@@ -87,13 +99,13 @@ services:
       - plexnet
     environment:
       - PGID=1000
-      - PUID=1000
+      - PUID=1002
       - TZ=Europe/London
     volumes:
       - /docker/plex/config:/config
-      - /media/movies:/movies
-      - /media/series:/series
-      - /media/animes:/animes
+      - /share/medias/movies:/movies
+      - /share/medias/series:/series
+      - /share/medias/animes:/animes
 networks:
   plexnet:
     driver: bridge
